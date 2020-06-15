@@ -1,0 +1,26 @@
+name: Docker registry
+
+on: 
+   push:
+     tags:
+       - 'v*'
+
+jobs:
+  github:
+    runs-on: ubuntu-latest    
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build and publish image
+        if: success()
+        env: 
+          docker_password: ${{ secrets.DOCKER_PASSWORD }}
+          docker_username: ${{ secrets.DOCKER_USERNAME }}
+        run: |  
+          repo_name=$(cut -f 2 -d "/" <(echo ${{ github.repository }}))
+          tag=${GITHUB_REF##*/}
+          tag="${tag:1}"
+          docker build -t zavolab/${repo_name}:latest .
+          docker tag zavolab/${repo_name} zavolab/${repo_name}:${tag}
+          echo $docker_password | docker login -u $docker_username --password-stdin
+          docker push zavolab/${repo_name}:latest
+          docker push zavolab/${repo_name}:${tag}
