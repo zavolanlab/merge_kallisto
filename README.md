@@ -1,16 +1,14 @@
-# prune_tree
+# merge_kallisto
 
-Prune nh files based on a list of organisms
-
-Input: phylogenetic tree build based on multiz alignments at UCSC reference species
-Output: prunned tree containing only the species specified in the input
-
+Merge kallisto
 
 # Installation
 
 Install the following dependencies
-- optparse
-- phytools
+busparse=1.2.1
+tximport=1.16.0
+optparse=1.6.6
+rhdf5=2.32.0
 
 # Run
 
