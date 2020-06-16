@@ -55,8 +55,8 @@ option_list <- list(
     "--merge_col",
     action="store",
     type="character",
-    default="tpm",
-    help="Column to merge (tpm or counts). Default: tpm",
+    default=NULL,
+    help="Column to merge (tpm or counts). Default: both",
     metavar="tpm/counts"
   ),
   make_option(
@@ -97,12 +97,12 @@ option_list <- list(
 )
 
 # Parse command-line arguments
-opt_parser <- OptionParser(usage=paste("Usage:", script, "[OPTIONS] --input_dir <path/to/input/tables>\n", sep=" "), option_list = option_list, add_help_option=FALSE, description=msg)
+opt_parser <- OptionParser(usage=paste("Usage:", script, "[OPTIONS] --input <paths/to/input/tables>\n", sep=" "), option_list = option_list, add_help_option=FALSE, description=msg)
 opt <- parse_args(opt_parser)
 
 # Re-assign variables
-sample_names <- strsplit(opt$`names`,",")
-col <- tolower(opt$`merge_col`)
+if ( !is.null(opt$`names`) ){sample_names <- strsplit(opt$`names`,",")}
+col <- opt$`merge_col`
 out.dir <- opt$`output`
 in.dir <- strsplit(opt$`input`, ",")
 txout <- opt$`txOut`
@@ -129,7 +129,7 @@ if ( verb ) {cat("Reading input tables...\n", sep="")}
 
 # Reading tables files and sample names
 files <- unlist(in.dir)
-names(files) <- unlist(sample_names)
+if ( !is.null(opt$`names`) ){names(files) <- unlist(sample_names)}
 
 # Write log
 if ( verb ) {cat(files,sep="\n")}
@@ -154,28 +154,47 @@ if (txout == TRUE){ #for transcripts
   level <- "genes"
 }
 
-# Extract tpm or counts table
-# Write log
-if ( verb ) cat("Extracting",col,"\n",sep=" ")
-if (col == "tpm") {
-  myTable <- txi.kallisto$abundance
-} 
-if (col == "counts") {
-  myTable <- txi.kallisto$counts
+# Extract tpm / counts table
+
+print(col)
+
+if (is.null(col)){
+  # Write log
+  if ( verb ) cat("Extracting tpm and counts...\n",sep="")
+  myTable.tpm <- txi.kallisto$abundance
+  myTable.counts <- txi.kallisto$counts
+  out.myTable.tpm <- file.path(out.dir, paste(paste(level,"tpm",sep = "_"), "tsv" , sep="."))
+  out.myTable.counts <- file.path(out.dir, paste(paste(level,"counts",sep = "_"), "tsv" , sep="."))
+  # Write log
+  if ( verb ) cat("Writing tables...", out.myTable.counts, out.myTable.tpm, sep="\n")
+  write.table(myTable.tpm, out.myTable.tpm, row.names=TRUE, col.names=TRUE, quote=FALSE, sep="\t")
+  write.table(myTable.counts, out.myTable.counts, row.names=TRUE, col.names=TRUE, quote=FALSE, sep="\t")
+}else{
+  # Write log
+  if ( verb ) cat("Extracting",col,"...\n",sep=" ")
+  col = tolower(col)
+  if (col == "tpm") {
+    myTable.tpm <- txi.kallisto$abundance
+    out.myTable.tpm <- file.path(out.dir, paste(paste(level,col,sep = "_"), "tsv" , sep="."))
+    # Write log
+    if ( verb ) cat("Writing tables...", out.myTable.tpm, sep="\n")
+    write.table(myTable.tpm, out.myTable.tpm, row.names=TRUE, col.names=TRUE, quote=FALSE, sep="\t")
+  } 
+  if (col == "counts") {
+    myTable.counts <- txi.kallisto$counts
+    out.myTable.counts <- file.path(out.dir, paste(paste(level,col,sep = "_"), "tsv" , sep="."))
+    # Write log
+    if ( verb ) cat("Writing tables...", out.myTable.counts, sep="\n")
+    write.table(myTable.counts, out.myTable.counts, row.names=TRUE, col.names=TRUE, quote=FALSE, sep="\t")
+  }
 }
 
-# Write log
-if ( verb ) cat("Writing tables...\n", sep="")
-# Define paths
-out.myTable <- file.path(out.dir, paste(paste(level,col,sep = "_"), "tsv" , sep="."))
-if (!is.null(anno)){out.tx2gene <- file.path(out.dir, paste("tx2geneID","tsv",sep = "."))}
-
-# Write log
-if ( verb ) cat(out.myTable,"\n", sep="")
-if (!is.null(anno)){ if ( verb ) cat(out.tx2gene,"\n", sep="") }
-# Writing tables
-write.table(myTable, out.myTable, row.names=TRUE, col.names=TRUE, quote=FALSE, sep="\t")
-if (!is.null(anno)){ write.table(tx2gene, out.tx2gene, row.names=FALSE, col.names=TRUE, quote=FALSE, sep="\t") }
+if (!is.null(anno)){
+  out.tx2gene <- file.path(out.dir, paste("tx2geneID","tsv",sep = "."))
+  # Write log
+  if ( verb ) cat("Writing tx2gene table...", out.tx2gene ,sep="\n")
+  write.table(tx2gene, out.tx2gene, row.names=FALSE, col.names=TRUE, quote=FALSE, sep="\t")
+}
 
 # Write log
 if ( verb ) cat("Done.\n", sep="")
