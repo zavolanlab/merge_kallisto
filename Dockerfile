@@ -25,7 +25,7 @@ RUN conda install \
 --yes \
 --channel bioconda \
 --channel conda-forge \
-bioconductor-busparse=1.2.1 \
-bioconductor-tximport=1.16.0 \
+bioconductor-busparse=1.0.0 \
+bioconductor-tximport=1.14.0 \
 r-optparse=1.6.6 \
-bioconductor-rhdf5=2.32.0
+bioconductor-rhdf5=2.30.0
