@@ -101,7 +101,7 @@ opt_parser <- OptionParser(usage=paste("Usage:", script, "[OPTIONS] --input <pat
 opt <- parse_args(opt_parser)
 
 # Re-assign variables
-sample_names <- strsplit(opt$`names`,",")
+if ( !is.null(opt$`names`) ){sample_names <- strsplit(opt$`names`,",")}
 col <- opt$`merge_col`
 out.dir <- opt$`output`
 in.dir <- strsplit(opt$`input`, ",")
@@ -129,7 +129,7 @@ if ( verb ) {cat("Reading input tables...\n", sep="")}
 
 # Reading tables files and sample names
 files <- unlist(in.dir)
-names(files) <- unlist(sample_names)
+if ( !is.null(opt$`names`) ){names(files) <- unlist(sample_names)}
 
 # Write log
 if ( verb ) {cat(files,sep="\n")}
