@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# (c) 2019 Paula Iborra, Biozentrum, University of Basel
+# (c) 2020 Paula Iborra, Biozentrum, University of Basel
 
 #################
 ###  IMPORTS  ###
@@ -10,7 +10,7 @@
 if ( suppressWarnings(suppressPackageStartupMessages(require("optparse"))) == FALSE ) { stop("[ERROR] Package 'optparse' required! Aborted.") }
 if ( suppressWarnings(suppressPackageStartupMessages(require("tximport"))) == FALSE ) { stop("[ERROR] Package 'tximport' required! Aborted.") }
 if ( suppressWarnings(suppressPackageStartupMessages(require("rhdf5"))) == FALSE ) { stop("[ERROR] Package 'rhdf5' required! Aborted.") }
-if ( suppressWarnings(suppressPackageStartupMessages(require("BUSpaRse"))) == FALSE ) { stop("[ERROR] Package 'BUSpaRse' required! Aborted.") }
+if ( suppressWarnings(suppressPackageStartupMessages(require("rtracklayer"))) == FALSE ) { stop("[ERROR] Package 'rtracklayer' required! Aborted.") }
 
 #######################
 ###  PARSE OPTIONS  ###
@@ -22,7 +22,7 @@ script <- sub("--file=", "", basename(commandArgs(trailingOnly=FALSE)[4]))
 # Build description message
 description <- "Merge kallisto tables.\n"
 version <- "Version: 1.0.0 (JUN-2020)"
-requirements <- "Requires: optparse, tximport, rhdf5, BUSpaRse"
+requirements <- "Requires: optparse, tximport, rhdf5, rtracklayer"
 msg <- paste(description, version, requirements, sep="\n")
 
 # Define list of arguments
@@ -139,7 +139,8 @@ if (!is.null(anno)) {
   # Write log
   if ( verb ) cat("Generating table of transcript to gene IDs....\n", sep="")
   # Generating two-column data.frame linking transcript id (column 1) to gene id (column 2).
-  tx2gene <- tr2g_gtf(anno, gene_name=NULL, transcript_version=NULL)
+  df <- readGFF("../input_files/homo_sapiens/annotation.gtf", tags=c("gene_id","transcript_id"))
+  tx2gene <- na.omit(df[,c("transcript_id","gene_id")])
 }
 
 # Merge table for transcripts or gene level. 
@@ -154,10 +155,7 @@ if (txout == TRUE){ #for transcripts
   level <- "genes"
 }
 
-# Extract tpm / counts table
-
-print(col)
-
+# Extract tpm / counts tables
 if (is.null(col)){
   # Write log
   if ( verb ) cat("Extracting tpm and counts...\n",sep="")
