@@ -139,8 +139,8 @@ if (!is.null(anno)) {
   # Write log
   if ( verb ) cat("Generating table of transcript to gene IDs....\n", sep="")
   # Generating two-column data.frame linking transcript id (column 1) to gene id (column 2).
-  df <- readGFF("../input_files/homo_sapiens/annotation.gtf", tags=c("gene_id","transcript_id"))
-  tx2gene <- na.omit(df[,c("transcript_id","gene_id")])
+  df <- readGFF(anno, tags=c("gene_id","transcript_id"))
+  tx2gene <- unique(na.omit(df[,c("transcript_id","gene_id")]))
 }
 
 # Merge table for transcripts or gene level. 
