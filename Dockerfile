@@ -1,8 +1,8 @@
 ##### BASE IMAGE #####
-FROM continuumio/miniconda:4.7.12
+FROM zavolab/minimamba:0.0.7
 
 ##### METADATA #####
-LABEL base.image="continuumio/miniconda:4.7.12"
+LABEL base.image="zavolab/minimamba:0.0.7"
 LABEL software="merge_kallisto"
 LABEL software.description="Merge kallisto quantification"
 LABEL software.website="https://github.com/zavolanlab/merge_kallisto"
@@ -17,18 +17,16 @@ LABEL maintainer.license="https://spdx.org/licenses/Apache-2.0"
 
 COPY R/merge_kallisto.R /usr/local/bin/merge_kallisto.R
 
-RUN conda \
+RUN mamba \
 create -n merge_kallisto \
 --yes \
---channel bioconda \
---channel conda-forge \
 --channel bioconda \
 --channel conda-forge \
 bioconductor-tximport=1.14.0 \
 bioconductor-rhdf5=2.30.0 \
 r-optparse=1.6.2 \
 bioconductor-rtracklayer=1.46.0 \
-&& conda clean --index-cache --tarballs -y
+&& mamba clean --index-cache --tarballs -y
 
 RUN echo "source activate merge_kallisto" > ~/.bashrc
 ENV PATH /opt/conda/envs/merge_kallisto/bin:${PATH}
