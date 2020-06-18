@@ -7,8 +7,8 @@ Merge kallisto
 Install the following dependencies
 
 - rtracklayer=1.46.0
-- tximport=1.16.0
-- optparse=1.6.6
+- tximport=1.14.0
+- optparse=1.6.2
 - rhdf5=2.32.0
 
 # Run
