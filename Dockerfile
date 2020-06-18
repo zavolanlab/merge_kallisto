@@ -17,11 +17,8 @@ LABEL maintainer.license="https://spdx.org/licenses/Apache-2.0"
 
 COPY R/merge_kallisto.R /usr/local/bin/merge_kallisto.R
 
-##### INSTALL #####
-RUN apt-get update -y \
-  && apt-get install -y --no-install-recommends build-essential gcc curl libxml2-dev libssl-dev
-
-RUN conda install \
+RUN conda \
+create -n merge_kallisto \
 --yes \
 --channel bioconda \
 --channel conda-forge \
@@ -30,4 +27,8 @@ RUN conda install \
 bioconductor-tximport=1.14.0 \
 bioconductor-rhdf5=2.30.0 \
 r-optparse=1.6.2 \
-bioconductor-busparse=1.0.0
+bioconductor-rtracklayer=1.46.0 \
+&& conda clean --index-cache --tarballs -y
+
+RUN echo "source activate merge_kallisto" > ~/.bashrc
+ENV PATH /opt/conda/envs/merge_kallisto/bin:${PATH}
